@@ -14,36 +14,37 @@ class Smython:
         response_format: Your preferred response format. Options are 'xml' or 'json' TODO make this a constant since this only works for json
         lang: the language code needed by some queries, defaults to english.
     """
+    BASE_URL = 'http://api.smitegame.com/smiteapi.svc/'
+    RESPONSE_FORMAT = 'json'
+    SESSION = None
 
-    def __init__(self, dev_id, auth_key, response_format='json', lang='1'):
+    def __init__(self, dev_id, auth_key, lang=1):
         self.dev_id = dev_id
         self.auth_key = auth_key
-        self.response_format = response_format
-        self.lang = lang
-        self.session = None
-        self.base_url = 'http://api.smitegame.com/smiteapi.svc/'
+        self.lang = str(lang)
+
 
     def make_request(self, methodname, parameters=None):
-        if not self.session or not self._test_session(self.session):
-            self.session = self._create_session()
+        if not self.SESSION or not self._test_session(self.SESSION):
+            self.SESSION = self._create_session()
 
         url = self._build_url(methodname, parameters)
         return json.loads(urllib2.urlopen(url).read())
 
     def _build_url(self, methodname, parameters=None):
-        base = self.base_url
+        base = self.BASE_URL
         signature = self._create_signature(methodname)
         timestamp = self._create_now_timestamp()
-        session_id = self.session.get("session_id")
+        session_id = self.SESSION.get("session_id")
 
-        path = [methodname + self.response_format, self.dev_id, signature, session_id, timestamp]
+        path = [methodname + self.RESPONSE_FORMAT, self.dev_id, signature, session_id, timestamp]
         if parameters:
             path = path + parameters
         return base + '/'.join(path)
 
     def _create_session(self):
         signature = self._create_signature('createsession')
-        url = self.base_url + "createsessionjson/" + self.dev_id + "/%s/" % signature + self._create_now_timestamp()
+        url = self.BASE_URL + "createsessionjson/" + self.dev_id + "/%s/" % signature + self._create_now_timestamp()
         return json.loads(urllib2.urlopen(url).read())
 
     def _create_now_timestamp(self):
@@ -58,8 +59,9 @@ class Smython:
         methodname = 'testsession'
         timestamp = self._create_now_timestamp()
         signature = self._create_signature(methodname)
-        path = "/".join([methodname + self.response_format, self.dev_id, signature, session.get("session_id"), timestamp])
-        url = self.base_url + path
+        path = "/".join(
+            [methodname + self.RESPONSE_FORMAT, self.dev_id, signature, session.get("session_id"), timestamp])
+        url = self.BASE_URL + path
         return "successful" in urllib2.urlopen(url).read()
 
     def get_data_used(self):
