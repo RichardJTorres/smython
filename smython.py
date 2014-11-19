@@ -11,7 +11,6 @@ class Smython:
     Attributes:
         dev_id: Your private developer ID supplied by Hi-rez. Can be requested here: https://fs12.formsite.com/HiRez/form48/secure_index.html
         auth_key: Your authorization key
-        response_format: Your preferred response format. Options are 'xml' or 'json' TODO make this a constant since this only works for json
         lang: the language code needed by some queries, defaults to english.
     """
     BASE_URL = 'http://api.smitegame.com/smiteapi.svc/'
@@ -89,7 +88,7 @@ class Smython:
         :param lang: the language id that you want results returned in
         :return: Returns a dictionary of recommended items for a particular god
         """
-        return self.make_request('getgodrecommendeditems', [god_id, lang])
+        return self.make_request('getgodrecommendeditems', [str(god_id), lang])
 
     def get_esports_proleague_details(self):
         """
@@ -108,28 +107,28 @@ class Smython:
         :param match_id: The id of the match
         :return: Returns a dictionary of the match and it's attributes.
         """
-        return self.make_request('getmatchdetails', [match_id])
+        return self.make_request('getmatchdetails', [str(match_id)])
 
     def get_team_details(self, clan_id):
         """
         :param clan_id: The id of the clan
         :return: Returns the details of the clan in a python dictionary
         """
-        return self.make_request('getteamdetails', [clan_id])
+        return self.make_request('getteamdetails', [str(clan_id)])
 
     def get_team_match_history(self, clan_id):
         """
         :param clan_id: The ID of the clan.
         :return: Returns a history of matches from the given clan.
         """
-        return self.make_request('getteammatchhistory', [clan_id])
+        return self.make_request('getteammatchhistory', [str(clan_id)])
 
     def get_team_players(self, clan_id):
         """
         :param clan_id: The ID of the clan
         :return: Returns a list of players for the given clan.
         """
-        return self.make_request('getteamplayers', [clan_id])
+        return self.make_request('getteamplayers', [str(clan_id)])
 
     def search_teams(self, search_team):
         """
@@ -150,21 +149,21 @@ class Smython:
         :param player: The player name or a player ID
         :return: Returns a list of friends
         """
-        return self.make_request('getfriends', [player])
+        return self.make_request('getfriends', [str(player)])
 
     def get_god_ranks(self, player):
         """
         :param player: The player name or player ID
         :return: Returns the rank and worshippers value for each God the player has played
         """
-        return self.make_request('getgodranks', [player])
+        return self.make_request('getgodranks', [str(player)])
 
     def get_match_history(self, player):
         """
         :param player: The player name or player ID
         :return: Returns the recent matches and high level match statistics for a particular player.
         """
-        return self.make_request('getmatchhistory', [player])
+        return self.make_request('getmatchhistory', [str(player)])
 
     def get_queue_stats(self, player, queue):
         """
@@ -172,7 +171,7 @@ class Smython:
         :param queue: The id of the game mode
         :return: Returns match summary statistics for a player and queue
         """
-        return self.make_request('getqueuestats', [player, queue])
+        return self.make_request('getqueuestats', [str(player), str(queue)])
 
 
 
