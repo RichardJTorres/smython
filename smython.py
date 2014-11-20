@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 
 
-class Smython:
+class Smython(object):
     """
     A python tool to make client API requests to the Smite API
     Attributes:
@@ -18,9 +18,9 @@ class Smython:
     SESSION = None
 
     def __init__(self, dev_id, auth_key, lang=1):
-        self.dev_id = dev_id
-        self.auth_key = auth_key
-        self.lang = str(lang)
+        self.dev_id = str(dev_id)
+        self.auth_key = str(auth_key)
+        self.lang = lang
 
 
     def make_request(self, methodname, parameters=None):
@@ -38,7 +38,7 @@ class Smython:
 
         path = [methodname + self.RESPONSE_FORMAT, self.dev_id, signature, session_id, timestamp]
         if parameters:
-            path = path + parameters
+            path = path + [str(param) for param in parameters]
         return base + '/'.join(path)
 
     def _create_session(self):
@@ -75,20 +75,18 @@ class Smython:
         """
         return self.make_request('getgods', self.lang)
 
-    def get_items(self, lang):
+    def get_items(self):
         """
-        :param lang: The language id that you want results returned in.
         :return: Returns all Smite items and their various attributes
         """
-        return self.make_request('getitems', [lang])
+        return self.make_request('getitems', [self.lang])
 
-    def get_god_recommended_items(self, god_id, lang):
+    def get_god_recommended_items(self, god_id):
         """
         :param god_id: ID of god you are quering against. Can be found in get_gods return result.
-        :param lang: the language id that you want results returned in
         :return: Returns a dictionary of recommended items for a particular god
         """
-        return self.make_request('getgodrecommendeditems', [str(god_id), lang])
+        return self.make_request('getgodrecommendeditems', [god_id])
 
     def get_esports_proleague_details(self):
         """
@@ -107,28 +105,28 @@ class Smython:
         :param match_id: The id of the match
         :return: Returns a dictionary of the match and it's attributes.
         """
-        return self.make_request('getmatchdetails', [str(match_id)])
+        return self.make_request('getmatchdetails', [match_id])
 
     def get_team_details(self, clan_id):
         """
         :param clan_id: The id of the clan
         :return: Returns the details of the clan in a python dictionary
         """
-        return self.make_request('getteamdetails', [str(clan_id)])
+        return self.make_request('getteamdetails', [clan_id])
 
     def get_team_match_history(self, clan_id):
         """
         :param clan_id: The ID of the clan.
         :return: Returns a history of matches from the given clan.
         """
-        return self.make_request('getteammatchhistory', [str(clan_id)])
+        return self.make_request('getteammatchhistory', [clan_id])
 
     def get_team_players(self, clan_id):
         """
         :param clan_id: The ID of the clan
         :return: Returns a list of players for the given clan.
         """
-        return self.make_request('getteamplayers', [str(clan_id)])
+        return self.make_request('getteamplayers', [clan_id])
 
     def search_teams(self, search_team):
         """
@@ -149,14 +147,14 @@ class Smython:
         :param player: The player name or a player ID
         :return: Returns a list of friends
         """
-        return self.make_request('getfriends', [str(player)])
+        return self.make_request('getfriends', [player])
 
     def get_god_ranks(self, player):
         """
         :param player: The player name or player ID
         :return: Returns the rank and worshippers value for each God the player has played
         """
-        return self.make_request('getgodranks', [str(player)])
+        return self.make_request('getgodranks', [player])
 
     def get_match_history(self, player):
         """
@@ -172,7 +170,3 @@ class Smython:
         :return: Returns match summary statistics for a player and queue
         """
         return self.make_request('getqueuestats', [str(player), str(queue)])
-
-
-
-
