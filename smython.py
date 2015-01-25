@@ -1,3 +1,6 @@
+"""
+    A python tool to make client API requests to the Smite API
+"""
 import hashlib
 import urllib2
 import json
@@ -5,50 +8,46 @@ import json
 from datetime import datetime
 
 
-class Smython(object):
-    """
-    A python tool to make client API requests to the Smite API
-    Attributes:
-        dev_id: Your private developer ID supplied by Hi-rez. Can be requested here: https://fs12.formsite.com/HiRez/form48/secure_index.html
-        auth_key: Your authorization key
-        lang: the language code needed by some queries, defaults to english.
-    """
-    BASE_URL = 'http://api.smitegame.com/smiteapi.svc/'
-    RESPONSE_FORMAT = 'json'
-    SESSION = None
+class SmiteClient(object):        
+    _BASE_URL = 'http://api.smitegame.com/smiteapi.svc'
+    _RESPONSE_FORMAT = 'json'
 
     def __init__(self, dev_id, auth_key, lang=1):
+        """
+        :param dev_id: Your private developer ID supplied by Hi-rez. Can be requested here: https://fs12.formsite.com/HiRez/form48/secure_index.html
+        :param auth_key: Your authorization key
+        :param lang: the language code needed by some queries, default to english. 
+        """
         self.dev_id = str(dev_id)
         self.auth_key = str(auth_key)
         self.lang = lang
+        self._session = None
 
 
-    def make_request(self, methodname, parameters=None):
-        if not self.SESSION or not self._test_session(self.SESSION):
-            self.SESSION = self._create_session()
+    def _make_request(self, methodname, parameters=None):
+        if not self._session or not self._test_session(self._session):
+            self._session = self._create_session()
 
-        url = self._build_url(methodname, parameters)
+        url = self._build_request_url(methodname, parameters)
         return json.loads(urllib2.urlopen(url).read())
 
-    def _build_url(self, methodname, parameters=None):
-        base = self.BASE_URL
+    def _build_request_url(self, methodname, parameters=())):
         signature = self._create_signature(methodname)
         timestamp = self._create_now_timestamp()
-        session_id = self.SESSION.get("session_id")
+        session_id = self._session.get("session_id")
 
-        path = [methodname + self.RESPONSE_FORMAT, self.dev_id, signature, session_id, timestamp]
-        if parameters:
-            path = path + [str(param) for param in parameters]
-        return base + '/'.join(path)
+        path = [methodname + SmiteClient.RESPONSE_FORMAT, self.dev_id, signature, session_id, timestamp]
+        path += [str(param) for param in parameters]
+        return SmiteClient.BASE_URL + '/'.join(path)
 
     def _create_session(self):
         signature = self._create_signature('createsession')
-        url = self.BASE_URL + "createsessionjson/" + self.dev_id + "/%s/" % signature + self._create_now_timestamp()
+        url = '{0}/createsessionjson/{1}/{2}{3}'.format(SmiteClient.BASE_URL, self.dev_id, signature, self._create_now_timestamp())
         return json.loads(urllib2.urlopen(url).read())
 
     def _create_now_timestamp(self):
-        dt = datetime.utcnow()
-        return dt.strftime("%Y%m%d%H%M%S")
+        datime_now = datetime.utcnow()
+        return datime_now.strftime("%Y%m%d%H%M%S")
 
     def _create_signature(self, methodname):
         now = self._create_now_timestamp()
